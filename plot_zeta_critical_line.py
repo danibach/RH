@@ -132,10 +132,13 @@ def format_tick(value: float) -> str:
 
 def make_svg(
     values: list[complex],
-    t_values: list[float],
+    parameter_values: list[float],
     sigma: float,
     width: int,
     height: int,
+    parameter_label: str = "t",
+    title: str | None = None,
+    subtitle: str | None = None,
 ) -> str:
     margin_left = 92
     margin_right = 120
@@ -176,8 +179,13 @@ def make_svg(
     x_ticks = nice_ticks(visible_min_x, visible_max_x)
     y_ticks = nice_ticks(visible_min_y, visible_max_y)
 
-    title = f"zeta(s) output for s = {sigma:g} + i t"
-    subtitle = f"{t_values[0]:g} <= t <= {t_values[-1]:g}, {len(t_values)} samples"
+    if title is None:
+        title = f"zeta(s) output for s = {sigma:g} + i {parameter_label}"
+    if subtitle is None:
+        subtitle = (
+            f"{parameter_values[0]:g} <= {parameter_label} <= "
+            f"{parameter_values[-1]:g}, {len(parameter_values)} samples"
+        )
 
     pieces = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -235,9 +243,9 @@ def make_svg(
             f'<text x="{margin_left + plot_width / 2:.1f}" y="{height - 25}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#0f172a">Re(zeta(s))</text>',
             f'<text x="24" y="{margin_top + plot_height / 2:.1f}" text-anchor="middle" transform="rotate(-90 24 {margin_top + plot_height / 2:.1f})" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#0f172a">Im(zeta(s))</text>',
             f'<rect x="{width - margin_right + 42}" y="{margin_top}" width="18" height="{plot_height}" fill="url(#t-gradient)" stroke="#cbd5e1"/>',
-            f'<text x="{width - margin_right + 70}" y="{margin_top + 4}" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#475569">{format_tick(t_values[-1])}</text>',
-            f'<text x="{width - margin_right + 70}" y="{margin_top + plot_height}" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#475569">{format_tick(t_values[0])}</text>',
-            f'<text x="{width - margin_right + 51}" y="{margin_top + plot_height / 2:.1f}" text-anchor="middle" transform="rotate(-90 {width - margin_right + 51} {margin_top + plot_height / 2:.1f})" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#0f172a">input t</text>',
+            f'<text x="{width - margin_right + 70}" y="{margin_top + 4}" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#475569">{format_tick(parameter_values[-1])}</text>',
+            f'<text x="{width - margin_right + 70}" y="{margin_top + plot_height}" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#475569">{format_tick(parameter_values[0])}</text>',
+            f'<text x="{width - margin_right + 51}" y="{margin_top + plot_height / 2:.1f}" text-anchor="middle" transform="rotate(-90 {width - margin_right + 51} {margin_top + plot_height / 2:.1f})" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#0f172a">input {html.escape(parameter_label)}</text>',
             f'<text x="{start_x + 10:.2f}" y="{start_y - 10:.2f}" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#166534">start</text>',
             f'<text x="{end_x + 10:.2f}" y="{end_y - 10:.2f}" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#991b1b">end</text>',
             "</svg>",
